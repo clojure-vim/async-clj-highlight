@@ -11,19 +11,14 @@ endfunction
 function! AsyncCljHighlightExec(msg)
   let highlight = a:msg[0]['value']
   exec highlight
+  let &syntax = &syntax
 endfunction
 
 " Pass zero explicitly to prevent highlighting local vars
 function! vim_clojure_highlight#syntax_match_references(...)
-  if !s:session_exists() | return | endif
-
-  try
     call AcidSendNrepl({'op': 'eval', 'code': "(find-ns 'vim-clojure-highlight)"}, 'VimFn', 'AsyncCljHighlightHandle')
 
     let opts = (a:0 > 0 && !a:1) ? ' :local-vars false' : ''
 
     execute AcidSendNrepl({"op": "eval", "code": "(vim-clojure-highlight/ns-syntax-command " . ns . opts . ")"}, 'VimFn', 'AsyncCljHighlightExec')
-    let &syntax = &syntax
-  catch /./
-  endtry
 endfunction

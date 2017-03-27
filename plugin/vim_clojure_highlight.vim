@@ -45,7 +45,13 @@ function! AsyncCljHighlightHandle(msg)
 endfunction
 
 function! AsyncCljHighlightExec(msg)
-  let ret = a:msg[0]['value']
-  exec eval(ret)
-  let &syntax = &syntax
+  let fst = a:msg[0]
+  if get(fst, 'value', '') !=# ''
+    exec eval(fst.value)
+    let &syntax = &syntax
+  elseif get(fst, 'err', '') !=# ''
+    echohl ErrorMSG
+    echo fst.err
+    echohl NONE
+  endif
 endfunction

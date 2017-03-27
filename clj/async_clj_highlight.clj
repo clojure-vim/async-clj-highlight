@@ -1,4 +1,4 @@
-(ns vim-clojure-highlight
+(ns async-clj-highlight
   (:require [clojure.set :as set]
             [clojure.string :as string])
   (:import (clojure.lang MultiFn)))

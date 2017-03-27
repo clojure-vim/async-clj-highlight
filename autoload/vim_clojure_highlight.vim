@@ -14,8 +14,9 @@ function! AsyncCljHighlightHandle(msg)
 endfunction
 
 function! AsyncCljHighlightExec(msg)
-  let highlight = a:msg[0]['value']
-  exec highlight
+  let ret = a:msg[0]['value']
+  echom ret
+  exec ret
   let &syntax = &syntax
 endfunction
 

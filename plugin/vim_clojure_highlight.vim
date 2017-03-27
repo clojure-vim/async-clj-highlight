@@ -33,15 +33,29 @@ augroup END
 command! -bar ToggleClojureHighlightReferences call s:toggle_clojure_highlight_references()
 command! -bar ClojureHighlightReferences call s:syntax_match_references()
 
+function! AsyncCljRequestHighlight(...)
+  if a:0 > 0
+    let fst = a:1
+    if get(fst, 'err', '') !=# ''
+      echohl ErrorMSG
+      echo fst.err
+      echohl NONE
+      return
+    endif
+  endif
+
+  let ns = AcidGetNs()
+  let opts = g:clojure_highlight_local_vars ? '' : ' :local-vars false'
+  call AcidSendNrepl({"op": "eval", "code": "(vim-clojure-highlight/ns-syntax-command '" . ns . opts . ")"}, 'VimFn', 'AsyncCljHighlightExec')
+endfunction
+
 function! AsyncCljHighlightHandle(msg)
   let exists = a:msg[0]['value']
   if exists =~ 'nil'
       let buf = join(readfile(globpath(&runtimepath, 'autoload/vim_clojure_highlight.clj')), "\n")
-      call AcidSendNrepl({'op': 'eval', 'code': "(do ". buf . ")"}, 'Ignore')
+      call AcidSendNrepl({'op': 'eval', 'code': "(do ". buf . ")"}, 'VimFn', 'AsyncCljRequestHighlight')
   endif
-    let opts = (a:0 > 0 && !a:1) ? ' :local-vars false' : ''
-    let ns = AcidGetNs()
-    call AcidSendNrepl({"op": "eval", "code": "(vim-clojure-highlight/ns-syntax-command '" . ns . opts . ")"}, 'VimFn', 'AsyncCljHighlightExec')
+  call AsyncCljRequestHighlight()
 endfunction
 
 function! AsyncCljHighlightExec(msg)

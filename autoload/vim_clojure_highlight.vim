@@ -1,30 +1,33 @@
 " vim-clojure-highlight
 
-function! s:session_exists()
-	return exists('g:fireplace_nrepl_sessions') && len(g:fireplace_nrepl_sessions)
+function! AsyncCljHighlightHandle(msg)
+  let exists = a:msg[0]['value']
+  if exists =~ 'nil'
+      let buf = join(readfile(globpath(&runtimepath, 'autoload/vim_clojure_highlight.clj')), "\n")
+      call AcidSendNrepl({'op': 'eval', 'code': "(do ". buf . ")"}, 'Ignore')
+  endif
 endfunction
 
-function! s:require()
-	if fireplace#evalparse("(find-ns 'vim-clojure-highlight)") ==# ''
-		let buf = join(readfile(globpath(&runtimepath, 'autoload/vim_clojure_highlight.clj')), "\n")
-		call fireplace#session_eval('(do ' . buf . ')')
-	endif
+function! AsyncCljHighlightRequire()
+  call AcidSendNrepl({'op': 'eval', 'code': "(find-ns 'vim-clojure-highlight)"}, 'VimFn', 'AsyncCljHighlightHandle')
+endfunction
+
+function! AsyncCljHighlightExec(msg)
+  let highlight = a:msg[0]['value']
+  exec highlight
 endfunction
 
 " Pass zero explicitly to prevent highlighting local vars
 function! vim_clojure_highlight#syntax_match_references(...)
-	if !s:session_exists() | return | endif
+  if !s:session_exists() | return | endif
 
-	try
-		call s:require()
+  try
+    call s:require()
 
-		let ns = "'" . fireplace#ns()
-		let opts = (a:0 > 0 && !a:1) ? ' :local-vars false' : ''
+    let opts = (a:0 > 0 && !a:1) ? ' :local-vars false' : ''
 
-		execute fireplace#evalparse("(vim-clojure-highlight/ns-syntax-command " . ns . opts . ")")
-		let &syntax = &syntax
-	catch /./
-	endtry
+    execute AcidSendNrepl({"op": "eval", "code": "(vim-clojure-highlight/ns-syntax-command " . ns . opts . ")"}, 'VimFn', 'AsyncCljHighlightExec')
+    let &syntax = &syntax
+  catch /./
+  endtry
 endfunction
-
-" vim:noet:sw=8:ts=8

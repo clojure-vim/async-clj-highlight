@@ -5,18 +5,15 @@ function! AsyncCljHighlightHandle(msg)
   if exists =~ 'nil'
       let buf = join(readfile(globpath(&runtimepath, 'autoload/vim_clojure_highlight.clj')), "\n")
       call AcidSendNrepl({'op': 'eval', 'code': "(do ". buf . ")"}, 'Ignore')
-      let opts = (a:0 > 0 && !a:1) ? ' :local-vars false' : ''
-
-      let ns = AcidGetNs()
-
-      call AcidSendNrepl({"op": "eval", "code": "(vim-clojure-highlight/ns-syntax-command " . ns . opts . ")"}, 'VimFn', 'AsyncCljHighlightExec')
   endif
+    let opts = (a:0 > 0 && !a:1) ? ' :local-vars false' : ''
+    let ns = AcidGetNs()
+    call AcidSendNrepl({"op": "eval", "code": "(vim-clojure-highlight/ns-syntax-command '" . ns . opts . ")"}, 'VimFn', 'AsyncCljHighlightExec')
 endfunction
 
 function! AsyncCljHighlightExec(msg)
   let ret = a:msg[0]['value']
-  echom ret
-  exec ret
+  exec eval(ret)
   let &syntax = &syntax
 endfunction
 

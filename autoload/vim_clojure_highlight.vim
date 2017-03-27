@@ -8,10 +8,6 @@ function! AsyncCljHighlightHandle(msg)
   endif
 endfunction
 
-function! AsyncCljHighlightRequire()
-  call AcidSendNrepl({'op': 'eval', 'code': "(find-ns 'vim-clojure-highlight)"}, 'VimFn', 'AsyncCljHighlightHandle')
-endfunction
-
 function! AsyncCljHighlightExec(msg)
   let highlight = a:msg[0]['value']
   exec highlight
@@ -22,7 +18,7 @@ function! vim_clojure_highlight#syntax_match_references(...)
   if !s:session_exists() | return | endif
 
   try
-    call s:require()
+    call AcidSendNrepl({'op': 'eval', 'code': "(find-ns 'vim-clojure-highlight)"}, 'VimFn', 'AsyncCljHighlightHandle')
 
     let opts = (a:0 > 0 && !a:1) ? ' :local-vars false' : ''
 

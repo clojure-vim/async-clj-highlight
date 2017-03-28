@@ -21,14 +21,11 @@ function! AsyncCljHighlightExec(msg)
 endfunction
 
 function! AsyncCljRequestHighlight(...)
-  if a:0 > 0
-    let fst = a:1
-    if get(fst, 'err', '') !=# ''
-      echohl ErrorMSG
-      echo fst.err
-      echohl NONE
-      return
-    endif
+  if a:0 > 0 && get(a:1[0], 'err', 0)
+    echohl ErrorMSG
+    echo a:1[0].err
+    echohl NONE
+    return
   endif
 
   let ns = AcidGetNs()
@@ -37,7 +34,7 @@ function! AsyncCljRequestHighlight(...)
 endfunction
 
 function! AsyncCljHighlightPrepare(msg)
-  let exists = a:msg[0]['value']
+  let exists = a:msg[0].value
   if exists =~ 'nil'
       let buf = join(readfile(globpath(&runtimepath, 'clj/async_clj_highlight.clj')), "\n")
       call AcidSendNrepl({'op': 'eval', 'code': "(do ". buf . ")"}, 'VimFn', 'AsyncCljRequestHighlight')
@@ -47,7 +44,7 @@ endfunction
 
 function! s:syntax_match_references()
   if g:clojure_highlight_references
-    call AcidSendNrepl({'op': 'eval', 'code': "(find-ns 'vim-clojure-highlight)"}, 'VimFn', 'AsyncCljHighlightPrepare')
+    call AcidSendNrepl({'op': 'eval', 'code': "(find-ns 'async-clj-highlight)"}, 'VimFn', 'AsyncCljHighlightPrepare')
   endif
 endfunction
 

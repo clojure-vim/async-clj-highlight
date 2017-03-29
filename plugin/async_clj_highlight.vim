@@ -13,6 +13,7 @@ function! AsyncCljHighlightExec(msg)
   if get(fst, 'value', '') !=# ''
     exec eval(fst.value)
     let &syntax = &syntax
+    let b:async_clj_updated_highlight = 1
   elseif get(fst, 'err', '') !=# ''
     echohl ErrorMSG
     echo fst.err
@@ -42,8 +43,8 @@ function! AsyncCljHighlightPrepare(msg)
   call AsyncCljRequestHighlight()
 endfunction
 
-function! s:syntax_match_references()
-  if g:clojure_highlight_references
+function! s:syntax_match_references(bang)
+  if g:clojure_highlight_references && (a:bang || !exists('b:b:async_clj_updated_highlight'))
     call AcidSendNrepl({'op': 'eval', 'code': "(find-ns 'async-clj-highlight)"}, 'VimFn', 'AsyncCljHighlightPrepare')
   endif
 endfunction
@@ -64,5 +65,5 @@ augroup async_clj_highlight
   autocmd User AcidRequired ClojureHighlightReferences
 augroup END
 
-command! -bar ToggleClojureHighlightReferences call s:toggle_clojure_highlight_references()
-command! -bar ClojureHighlightReferences call s:syntax_match_references()
+command! -bar       ToggleClojureHighlightReferences call s:toggle_clojure_highlight_references()
+command! -bar -bang ClojureHighlightReferences call s:syntax_match_references(<bang>)

@@ -53,7 +53,7 @@ function! s:toggle_clojure_highlight_references()
   let g:clojure_highlight_references = !g:clojure_highlight_references
 
   if g:clojure_highlight_references
-    call s:syntax_match_references()
+    call s:syntax_match_references(0)
   else
     unlet! b:clojure_syntax_keywords b:clojure_syntax_without_core_keywords
     let &syntax = &syntax
@@ -66,6 +66,6 @@ augroup async_clj_highlight
 augroup END
 
 command! -bar       ToggleClojureHighlightReferences call s:toggle_clojure_highlight_references()
-command! -bar -bang ClojureHighlightReferences call s:syntax_match_references(<bang>)
+command! -bar -bang ClojureHighlightReferences call s:syntax_match_references(<bang>0)
 
 map <plug>AsyncCljDoHighlight :ClojureHighlightReferences!<CR>

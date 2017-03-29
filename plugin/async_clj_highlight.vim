@@ -67,3 +67,5 @@ augroup END
 
 command! -bar       ToggleClojureHighlightReferences call s:toggle_clojure_highlight_references()
 command! -bar -bang ClojureHighlightReferences call s:syntax_match_references(<bang>)
+
+map <plug>AsyncCljDoHighlight :ClojureHighlightReferences!<CR>

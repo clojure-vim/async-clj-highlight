@@ -8,6 +8,28 @@ if !exists('g:clojure_highlight_local_vars')
   let g:clojure_highlight_local_vars = 1
 endif
 
+function! s:disable_acid_log()
+  if exists('b:acid_log_messages')
+    let b:acid_old_log_value = b:acid_log_messages
+  else
+    let b:acid_log_messages = 0
+  endif
+endfunction
+
+function! s:restore_acid_log()
+  if exists('b:acid_old_log_value')
+    let b:acid_log_messages = b:acid_old_log_value
+  else
+    unlet b:acid_log_messages
+  endif
+endfunction
+
+function! s:silent_acid_send(data, handler_fn)
+  call s:disable_acid_log()
+  call AcidSendNrepl(a:data, 'VimFn', a:handler_fn)
+  call s:restore_acid_log()
+endfunction
+
 function! AsyncCljHighlightExec(msg)
   let fst = a:msg[0]
   if get(fst, 'value', '') !=# ''
@@ -31,21 +53,21 @@ function! AsyncCljRequestHighlight(...)
 
   let ns = AcidGetNs()
   let opts = g:clojure_highlight_local_vars ? '' : ' :local-vars false'
-  call AcidSendNrepl({"op": "eval", "code": "(async-clj-highlight/ns-syntax-command '" . ns . opts . ")"}, 'VimFn', 'AsyncCljHighlightExec')
+  call s:silen_acid_send({"op": "eval", "code": "(async-clj-highlight/ns-syntax-command '" . ns . opts . ")"}, 'AsyncCljHighlightExec')
 endfunction
 
 function! AsyncCljHighlightPrepare(msg)
   let exists = a:msg[0].value
   if exists =~ 'nil'
       let buf = join(readfile(globpath(&runtimepath, 'clj/async_clj_highlight.clj')), "\n")
-      call AcidSendNrepl({'op': 'eval', 'code': "(do ". buf . ")"}, 'VimFn', 'AsyncCljRequestHighlight')
+      call s:silen_acid_send({'op': 'eval', 'code': "(do ". buf . ")"}, 'AsyncCljRequestHighlight')
   endif
   call AsyncCljRequestHighlight()
 endfunction
 
 function! s:syntax_match_references(bang)
   if g:clojure_highlight_references && (a:bang || !exists('b:b:async_clj_updated_highlight'))
-    call AcidSendNrepl({'op': 'eval', 'code': "(find-ns 'async-clj-highlight)"}, 'VimFn', 'AsyncCljHighlightPrepare')
+    call s:silen_acid_send({'op': 'eval', 'code': "(find-ns 'async-clj-highlight)"}, 'AsyncCljHighlightPrepare')
   endif
 endfunction
 

@@ -19,6 +19,7 @@ endfunction
 function! s:restore_acid_log()
   if exists('b:acid_old_log_value')
     let b:acid_log_messages = b:acid_old_log_value
+    unlet b:acid_old_log_value
   else
     unlet b:acid_log_messages
   endif
@@ -26,6 +27,7 @@ endfunction
 
 function! s:silent_acid_send(data, handler_fn)
   call s:disable_acid_log()
+  echom "Disabled log: ".b:acid_log_messages
   call AcidSendNrepl(a:data, 'VimFn', a:handler_fn)
   call s:restore_acid_log()
 endfunction

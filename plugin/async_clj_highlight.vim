@@ -55,21 +55,21 @@ function! AsyncCljRequestHighlight(...)
 
   let ns = AcidGetNs()
   let opts = g:clojure_highlight_local_vars ? '' : ' :local-vars false'
-  call s:silen_acid_send({"op": "eval", "code": "(async-clj-highlight/ns-syntax-command '" . ns . opts . ")"}, 'AsyncCljHighlightExec')
+  call s:silent_acid_send({"op": "eval", "code": "(async-clj-highlight/ns-syntax-command '" . ns . opts . ")"}, 'AsyncCljHighlightExec')
 endfunction
 
 function! AsyncCljHighlightPrepare(msg)
   let exists = a:msg[0].value
   if exists =~ 'nil'
       let buf = join(readfile(globpath(&runtimepath, 'clj/async_clj_highlight.clj')), "\n")
-      call s:silen_acid_send({'op': 'eval', 'code': "(do ". buf . ")"}, 'AsyncCljRequestHighlight')
+      call s:silent_acid_send({'op': 'eval', 'code': "(do ". buf . ")"}, 'AsyncCljRequestHighlight')
   endif
   call AsyncCljRequestHighlight()
 endfunction
 
 function! s:syntax_match_references(bang)
   if g:clojure_highlight_references && (a:bang || !exists('b:b:async_clj_updated_highlight'))
-    call s:silen_acid_send({'op': 'eval', 'code': "(find-ns 'async-clj-highlight)"}, 'AsyncCljHighlightPrepare')
+    call s:silent_acid_send({'op': 'eval', 'code': "(find-ns 'async-clj-highlight)"}, 'AsyncCljHighlightPrepare')
   endif
 endfunction
 

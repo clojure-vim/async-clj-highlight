@@ -21,7 +21,7 @@ from Meikel Brandmeyer's VimClojure project.
 # Requires:
 
 * [vim-clojure-static](https://github.com/guns/vim-clojure-static)
-* [fireplace.vim](https://github.com/tpope/vim-fireplace)
+* [acid.nvim](https://github.com/clojure-vim/acid.nvim)
 
 While Vim ships with `vim-clojure-static`, this plugin uses a feature from a
 very [recent version][].
@@ -36,6 +36,11 @@ create an issue! This can be done quite easily.
 Install as a normal Vim plugin. If you are unfamiliar with this process,
 please refer to [Pathogen](https://github.com/tpope/vim-pathogen).
 
+Just make sure to refer to this branch on your configuration file.
+```
+Plug 'hkupty/async-clj-highlight', { 'for': 'clojure', 'branch': 'acid-autocmd' }
+```
+
 # Usage
 
 `vim-clojure-highlight` installs an autocommand that detects and highlights
@@ -43,9 +48,9 @@ local vars, ns-refers, and aliased references every time a `*.clj` file
 is (re)loaded. The syntax highlighting reflects the state of the REPL, so
 unevaluated references remain unmatched.
 
-This will fail silently if no fireplace nREPL sessions exist.
+This will fail silently if no acid nREPL sessions exist.
 
-Reload your buffer with `:e` after an eval to update syntax matches.
+Reload your buffer with `:w` after an eval to update syntax matches.
 Alternately, use the `:ClojureHighlightReferences` command in a custom
 autocommand or mapping to do the same.
 

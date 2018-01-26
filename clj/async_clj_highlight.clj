@@ -16,6 +16,9 @@
   '#{def if do let quote var fn loop recur throw try catch finally
      monitor-enter monitor-exit . new set!})
 
+(def special-indent-forms
+  '#{deftype defrecord reify proxy extend-type extend-protocol letfn})
+
 (def keyword-groups
   "Special forms, constants, and every public var in clojure.core keyed by
    syntax group name."

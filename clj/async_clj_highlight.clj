@@ -68,7 +68,7 @@
     (ns-aliases ns)))
 
 (defn var-type [v]
-  (let [f @v m (meta v)]
+  (let [_ @v m (meta v)]
     (cond (clojure-core? v) (core-symbol->syntax-group (:name m))
           (:macro m) "clojureMacro"
           (fn-var? v) "clojureFunc"
